@@ -205,6 +205,9 @@ public enum Precondition
     WIDGET_SUB_IS_HIDDEN(159, 4),
     WIDGET_SUB_IS_SHOWING(160, 4),
 
+    NAMED_SKILL_LEVEL_COMPARISON(161, 4),
+    NAMED_BOOSTED_SKILL_LEVEL_COMPARISON(162, 4),
+
     ;
     int id;
 

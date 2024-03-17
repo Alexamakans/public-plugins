@@ -69,7 +69,8 @@ public enum Action
     WIDGET_SUBCHILD_ACTION(53, 5),
 
     WIDGET_RESUME_PAUSE(54, 4),
-    ;
+
+    CAST_NAMED_SPELL(55, 2);
 
     int id;
     int paramsNeeded;

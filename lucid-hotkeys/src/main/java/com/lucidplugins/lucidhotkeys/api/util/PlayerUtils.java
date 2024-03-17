@@ -21,5 +21,4 @@ public class PlayerUtils
     {
         return Players.getNearest(filter);
     }
-
 }

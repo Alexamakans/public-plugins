@@ -25,6 +25,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import javax.inject.Inject;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -41,10 +42,13 @@ import static net.runelite.client.RuneLite.RUNELITE_DIR;
 
 @Extension
 @PluginDescriptor(
-        name = "Lucid Hotkeys",
+        name = "Alex Lucid Hotkeys",
         description = "Setup hotkeys that can do a variety of different actions.",
         enabledByDefault = false,
-        tags = {"hotkeys", "lucid"}
+        tags = {
+                "hotkeys",
+                "lucid"
+        }
 )
 public class LucidHotkeysPlugin extends Plugin implements KeyListener
 {
@@ -358,7 +362,6 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
     }
 
     /**
-     *
      * @param index Index of preset, starting at 1 (instead of 0)
      */
     private void handleHotkey(int index)
@@ -390,7 +393,7 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
         {
             if (!Strings.isNullOrEmpty(preconditions))
             {
-                MessageUtils.addMessage(client, "Pre-conditions length (" + (splitPreconditions.length ) + ") must match actions length (" + splitActions.length + ") for preset " + index + "!" );
+                MessageUtils.addMessage(client, "Pre-conditions length (" + (splitPreconditions.length) + ") must match actions length (" + splitActions.length + ") for preset " + index + "!");
                 return;
             }
         }
@@ -427,6 +430,7 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
                     if (precondition.getParamsNeeded() != params.length)
                     {
                         MessageUtils.addMessage(client, "Invalid param length for pre-condition index [" + i + "][" + j + "] in preset " + index);
+                        MessageUtils.addMessage(client, "Expected " + precondition.getParamsNeeded() + "; got " + params.length);
                         return;
                     }
 
@@ -449,6 +453,7 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
             if (action.getParamsNeeded() != actionParams.length)
             {
                 MessageUtils.addMessage(client, "Invalid param length for action index " + i + " in preset " + index + "!");
+                MessageUtils.addMessage(client, "Expected " + action.getParamsNeeded() + "; got " + actionParams.length);
                 return;
             }
 
@@ -594,7 +599,6 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
     }
 
     /**
-     *
      * @param index Index of preset, starting at 1 (instead of 0)
      */
     private String getActions(int index)
@@ -637,7 +641,6 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
     }
 
     /**
-     *
      * @param index Index of preset, starting at 1 (instead of 0)
      */
     private String getPreconditions(int index)
@@ -698,7 +701,7 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
             if (preconditionParams[1].contains("%"))
             {
                 if (precondition != Precondition.VAR_VALUE_EQUALS &&
-                    precondition != Precondition.VAR_VALUE_NOT_EQUAL)
+                        precondition != Precondition.VAR_VALUE_NOT_EQUAL)
                 {
                     String varValue = getVarValue(preconditionParams[1].replaceAll("%", ""));
                     if (varValue != null)
@@ -798,7 +801,7 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
         int ratio = target != null ? target.getHealthRatio() : -1;
         int scale = target != null ? target.getHealthScale() : -1;
 
-        int targetHpPercent = target != null ? (int) Math.floor((double) ratio  / (double) scale * 100) : -1;
+        int targetHpPercent = target != null ? (int) Math.floor((double) ratio / (double) scale * 100) : -1;
 
         int targetAnimation = target != null ? target.getAnimation() : -2;
 
@@ -1088,12 +1091,14 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
                 }
                 return false;
             case HAS_NAMED_ITEM_EQUIPPED:
-                return !EquipmentUtils.getAll(item -> {
+                return !EquipmentUtils.getAll(item ->
+                {
                     String name = client.getItemDefinition(item.getItem().getId()).getName();
                     return name != null && name.toLowerCase().contains(preconditionParams[1].toLowerCase());
                 }).isEmpty();
             case DOESNT_HAVE_NAMED_ITEM_EQUIPPED:
-                return EquipmentUtils.getAll(item -> {
+                return EquipmentUtils.getAll(item ->
+                {
                     String name = client.getItemDefinition(item.getItem().getId()).getName();
                     return name != null && name.toLowerCase().contains(preconditionParams[1].toLowerCase());
                 }).isEmpty();
@@ -1165,7 +1170,7 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
                 return param1Int < param2Int;
             case VAR_VALUE_GREATER_THAN:
                 return param1Int > param2Int;
-                default:
+            default:
                 return false;
             case LOCAL_PLAYER_SCENE_LOCATION_EQUALS:
                 return client.getLocalPlayer().getLocalLocation().getSceneX() == param1Int &&
@@ -1287,6 +1292,26 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
                 return InteractionUtils.isWidgetHidden(param1Int, param2Int, param3Int);
             case WIDGET_SUB_IS_SHOWING:
                 return !InteractionUtils.isWidgetHidden(param1Int, param2Int, param3Int);
+            case NAMED_SKILL_LEVEL_COMPARISON:
+                try
+                {
+                    return MiscUtil.compareIntegersUsingStringOperator(SkillUtils.getRealSkillLevel(preconditionParams[1]), preconditionParams[2].strip(), param3Int);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    MessageUtils.addMessage(client, "'" + preconditionParams[2].strip() + "' is not a valid operator");
+                    return false;
+                }
+            case NAMED_BOOSTED_SKILL_LEVEL_COMPARISON:
+                try
+                {
+                    return MiscUtil.compareIntegersUsingStringOperator(SkillUtils.getBoostedSkillLevel(preconditionParams[1]), preconditionParams[2].strip(), param3Int);
+                }
+                catch (IllegalArgumentException e)
+                {
+                    MessageUtils.addMessage(client, "'" + preconditionParams[2].strip() + "' is not a valid operator");
+                    return false;
+                }
         }
     }
 
@@ -1640,6 +1665,9 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
             case WIDGET_RESUME_PAUSE:
                 InteractionUtils.queueResumePause(param1Int, param2Int, param3Int);
                 break;
+            case CAST_NAMED_SPELL:
+                SpellUtils.castSpell(actionParams[1]);
+                break;
         }
     }
 
@@ -1933,7 +1961,6 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
     {
         npcNamesTracked.clear();
     }
-
 
 
     private void addRegionPointTileMarker(int regionId, int x, int y, String text)
