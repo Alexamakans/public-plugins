@@ -1,7 +1,11 @@
 package com.lucidplugins.lucidhotkeys.api.util;
 
 import net.runelite.api.widgets.Widget;
+import net.unethicalite.api.items.Inventory;
+import net.unethicalite.api.magic.Magic;
 import net.unethicalite.api.magic.Spell;
+import net.unethicalite.api.magic.SpellBook;
+import net.unethicalite.api.packets.MousePackets;
 import net.unethicalite.client.Static;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,7 +15,38 @@ public class SpellUtils
 {
     public static boolean isSpellbookOpen()
     {
-        return !InteractionUtils.isWidgetHidden(218, 3);
+        Widget widget = Static.getClient().getWidget(218, 3);
+        if (widget == null)
+        {
+            return false;
+        }
+
+        return !widget.isHidden();
+    }
+
+    public static boolean isInventoryOpen()
+    {
+        Widget widget = Static.getClient().getWidget(149, 0);
+        if (widget == null)
+        {
+            return false;
+        }
+
+        return !widget.isHidden();
+    }
+
+    @Nullable
+    static Spell getSpell(@NotNull String spellName)
+    {
+        for (var spell : SpellBook.Standard.values())
+        {
+            if (spell.name().equalsIgnoreCase(spellName.strip().replaceAll(" ", "_")))
+            {
+                return spell;
+            }
+        }
+
+        return null;
     }
 
     @Nullable
@@ -116,12 +151,12 @@ public class SpellUtils
 
         if (widget.getActions() == null)
         {
+            // Manually click by opening spellbook, no idea why the actions are null
             var curTabContainer = MiscUtil.getContainerWidgetInventoryCurrentTab();
             if (curTabContainer == null)
             {
                 return;
             }
-            // Manually click by opening spellbook
             if (!isSpellbookOpen())
             {
                 InteractionUtils.widgetInteract(161, 64, "Magic");
@@ -141,5 +176,21 @@ public class SpellUtils
             // Use magic super haxx to not even have to open the spellbook
             InteractionUtils.widgetInteract(widget.getParentId(), widget.getId(), "Cast");
         }
+    }
+
+    public static void castSpellOnInventoryItem(String spellName, String itemName)
+    {
+        var spell = getSpell(spellName);
+        if (spell == null)
+        {
+            return;
+        }
+        var targetItem = Inventory.getFirst(item -> item.getName().toLowerCase().contains(itemName.toLowerCase()));
+        if (targetItem == null)
+        {
+            return;
+        }
+        MousePackets.queueClickPacket();
+        Magic.cast(spell, targetItem);
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Provides;
 import com.lucidplugins.lucidhotkeys.api.util.*;
+import com.lucidplugins.lucidhotkeys.overlay.MouseOverlay;
 import com.lucidplugins.lucidhotkeys.overlay.TileMarkersOverlay;
 import lombok.Getter;
 import net.runelite.api.*;
@@ -70,6 +71,9 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
 
     @Inject
     private TileMarkersOverlay tileMarkersOverlay;
+
+    @Inject
+    private MouseOverlay mouseOverlay;
 
     @Inject
     private OverlayManager overlayManager;
@@ -154,6 +158,11 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
         {
             overlayManager.add(tileMarkersOverlay);
         }
+
+        if (!overlayManager.anyMatch(p -> p == mouseOverlay))
+        {
+            overlayManager.add(mouseOverlay);
+        }
     }
 
     @Override
@@ -166,6 +175,11 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
         if (overlayManager.anyMatch(p -> p == tileMarkersOverlay))
         {
             overlayManager.remove(tileMarkersOverlay);
+        }
+
+        if (overlayManager.anyMatch(p -> p == mouseOverlay))
+        {
+            overlayManager.remove(mouseOverlay);
         }
     }
 
@@ -1667,6 +1681,9 @@ public class LucidHotkeysPlugin extends Plugin implements KeyListener
                 break;
             case CAST_NAMED_SPELL:
                 SpellUtils.castSpell(actionParams[1]);
+                break;
+            case CAST_NAMED_SPELL_ON_NAMED_INVENTORY_ITEM:
+                SpellUtils.castSpellOnInventoryItem(actionParams[1], actionParams[2]);
                 break;
         }
     }

@@ -70,7 +70,10 @@ public enum Action
 
     WIDGET_RESUME_PAUSE(54, 4),
 
-    CAST_NAMED_SPELL(55, 2);
+    CAST_NAMED_SPELL(55, 2),
+
+    CAST_NAMED_SPELL_ON_NAMED_INVENTORY_ITEM(56, 3)
+    ;
 
     int id;
     int paramsNeeded;

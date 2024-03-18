@@ -56,6 +56,9 @@ public interface LucidHotkeysConfig extends Config
     @ConfigSection(name = "Custom Hotkey 15", description = "Hotkey # 15", position = 16)
     String section15 = "Custom Hotkey 15";
 
+    @ConfigSection(name = "Rendering", description = "Toggle rendering stuff", position = 17)
+    String renderingSection = "Rendering";
+
     // Preset Loading/Saving
 
     @ConfigItem(name = "Preset Name", description = "Name of the preset (replaces all non-alphanumerical characters with a space)", position = 0, keyName = "presetName", section = presetSection)
@@ -388,5 +391,11 @@ public interface LucidHotkeysConfig extends Config
     default String preconditions15()
     {
         return "";
+    }
+
+    @ConfigItem(name = "Render Mouse?", description = "Toggles rendering of the cross for the mouse position", position = 0, keyName = "renderMouse", section = renderingSection)
+    default boolean renderMouse()
+    {
+        return true;
     }
 }
